@@ -1,0 +1,109 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+    }
+}
+
+plugins {
+    id 'com.jfrog.bintray' version '1.7.3'
+    id 'maven-publish'
+    id 'java'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+}
+
+group = 'org.willemsens'
+version = '0.9'
+sourceCompatibility = 1.8
+
+dependencies {
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+javadoc.failOnError = false
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.5.1'
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+def pomConfig = {
+    licenses {
+        license {
+            name "GNU General Public License, version 2"
+            url "https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt"
+            distribution "repo"
+        }
+    }
+    developers {
+        developer {
+            id "larsdroid"
+            name "Lars Willemsens"
+            email "lars@willemsens.org"
+        }
+    }
+
+    scm {
+        url "https://github.com/larsdroid/mp3-vbr-length"
+    }
+}
+
+publishing {
+    publications {
+        mavenPublication(MavenPublication) {
+            from components.java
+            artifact sourcesJar {
+                classifier "sources"
+            }
+            artifact javadocJar {
+                classifier "javadoc"
+            }
+            groupId 'org.willemsens'
+            artifactId 'mp3-vbr-length'
+            version '0.9'
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', 'Calculate the length of MP3 files stored with a variable bitrate.')
+                root.appendNode('name', 'MP3 VBR length calculator')
+                root.appendNode('url', 'https://github.com/larsdroid/mp3-vbr-length')
+                root.children().last() + pomConfig
+            }
+        }
+    }
+}
+
+bintray {
+    user = System.getProperty('bintray.user')
+    key = System.getProperty('bintray.key')
+    publications = ['mavenPublication']
+
+    pkg {
+        repo = 'mp3-vbr-length'
+        name = 'mp3-vbr-length'
+        licenses = ['GPL-2.0']
+        vcsUrl = 'https://github.com/larsdroid/mp3-vbr-length.git'
+        version {
+            name = '0.9'
+            desc = '0.9'
+            released  = new Date()
+        }
+    }
+}
