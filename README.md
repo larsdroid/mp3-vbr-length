@@ -7,6 +7,8 @@ with a **variable bit-rate**.
 The code based in part on [MP3Info version 0.8.5a by Cedric
 Tefft](http://ibiblio.org/mp3info/).
 
+[ ![Download](https://api.bintray.com/packages/larsdroid/mp3-vbr-length/mp3-vbr-length/images/download.svg) ](https://bintray.com/larsdroid/mp3-vbr-length/mp3-vbr-length/_latestVersion)
+
 Setup
 --
 Add the repository to your `build.gradle`:
