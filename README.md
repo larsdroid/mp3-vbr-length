@@ -12,7 +12,7 @@ Tefft](http://ibiblio.org/mp3info/).
 Setup
 --
 Add the repository to your `build.gradle`:
-```
+```groovy
 repositories {
     maven {
         url "https://dl.bintray.com/larsdroid/mp3-vbr-length"
@@ -20,13 +20,13 @@ repositories {
 }
 ```
 Add the depencency to your `build.gradle`:
-```
-compile 'org.willemsens:mp3-vbr-length:0.9'
+```groovy
+compile 'org.willemsens:mp3-vbr-length:1.0'
 ```
 
 Usage
 --
-```
+```java
 try {
     // Using NIO:
     final Path songPath = Paths.get("song.mp3");
