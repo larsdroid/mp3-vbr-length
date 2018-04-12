@@ -31,17 +31,17 @@ This file is based in part on MP3Info version 0.8.5a by Cedric Tefft.
 package org.willemsens.mp3_vbr_length;
 
 import java.io.EOFException;
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.willemsens.mp3_vbr_length.Mp3Header.FRAME_HEADER_SIZE;
 
 /**
- * An Mp3Info contains information about a physical MP3 file.
+ * An Mp3Info object contains information about a physical MP3 file.
  * For now, only the length (duration) of an MP3 file is calculated.
- * Supports VBR format.
+ * Supports VBR (variable bit-rate) format.
  */
 public class Mp3Info {
     private static final int MIN_CONSEC_GOOD_FRAMES = 4;
@@ -50,21 +50,21 @@ public class Mp3Info {
     private Mp3Header header;
     private int seconds;
 
-    private Mp3Info(Path path) throws IOException {
-        this.dataSize = Files.size(path);
+    private Mp3Info(File file) throws IOException {
+        this.dataSize = file.length();
 
-        try (final RandomAccessFile file = new RandomAccessFile(path.toFile(), "r")){
+        try (final RandomAccessFile raFile = new RandomAccessFile(file, "r")){
             int vbr_median = -1;
             int bitrate;
 
-            if (this.getFirstHeader(file)) {
-                bitrate = this.getNextHeader(file);
+            if (this.getFirstHeader(raFile)) {
+                bitrate = this.getNextHeader(raFile);
                 int frame_type[] = new int[15];
                 int frames = 0;
                 while (bitrate != 0) {
                     frame_type[15 - bitrate]++;
                     frames++;
-                    bitrate = this.getNextHeader(file);
+                    bitrate = this.getNextHeader(raFile);
                 }
                 final Mp3Header header = Mp3Header.of(this.getHeader());
                 int frames_so_far = 0;
@@ -161,15 +161,28 @@ public class Mp3Info {
     }
 
     /**
-     * Create and parse the MP3 file denoted by the given file.
+     * Create and parse the MP3 file denoted by the given path.
      * This is a lengthy operation since the entire file is processed!
      *
      * @param path The location of the MP3 file to load and analyse.
-     * @return Information about the given file.
-     * @throws IOException In case of unexpected and abnormal file structure
+     * @return Information about the given MP3 file.
+     * @throws IOException In case of unexpected or abnormal file structure
      *                     or other I/O errors.
      */
     public static Mp3Info of(Path path) throws IOException {
-        return new Mp3Info(path);
+        return new Mp3Info(path.toFile());
+    }
+
+    /**
+     * Create and parse the MP3 file denoted by the given file.
+     * This is a lengthy operation since the entire file is processed!
+     *
+     * @param file The location of the MP3 file to load and analyse.
+     * @return Information about the given MP3 file.
+     * @throws IOException In case of unexpected or abnormal file structure
+     *                     or other I/O errors.
+     */
+    public static Mp3Info of(File file) throws IOException {
+        return new Mp3Info(file);
     }
 }
